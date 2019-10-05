@@ -93,9 +93,15 @@
 				    %>
                     <td><a href="SiteManagerRequestEdit.jsp?id=<%=resultSet.getString("rid")%>" class="templatemo-edit-btn">Edit</a></td>
                     <% } 
-				        else {
+				        else if ("Ordered".equals(resultSet.getString("status"))) {
 				    %>    
-					 <td><a href="" class="templatemo-edit-btn">Accept</a></td>
+					 <td><a href="SiteManagerDeliveryNote.jsp?id=<%=resultSet.getString("rid")%>" class="templatemo-edit-btn">Accept</a></td>
+					 
+				    <% 
+				        }
+				        else  {
+				    %>    
+					 <td style="background-color: #3AEF7C;" >Order Completed</td>
 					 
 				    <% 
 				        }

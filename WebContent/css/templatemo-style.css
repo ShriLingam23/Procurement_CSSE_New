@@ -364,6 +364,7 @@ footer { padding: 15px; }
 }
 .btn-primary:hover { background-color: #2A858B; }
 .templatemo-blue-button, 
+.templatemo-red-button, 
 .templatemo-white-button {
 	border-radius: 2px;
 	padding: 10px 30px;
@@ -376,6 +377,12 @@ footer { padding: 15px; }
 	color: white;	
 }
 .templatemo-blue-button:hover {	background-color: #2A858B; }
+.templatemo-red-button {
+	background-color: #C12809;
+	border: none;	
+	color: white;	
+}
+.templatemo-red-button:hover {	background-color: #F68554; }
 .templatemo-white-button {
 	background-color: white;
 	border: 1px solid #39ADB4;	

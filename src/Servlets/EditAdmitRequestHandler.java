@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import Entities.Request;
 import Service.EditAdminRequestService;
+import Service.EditSiteManagerRequestService;
 
 /**
  * Servlet implementation class EditAdmitRequestHandler
@@ -25,13 +26,22 @@ public class EditAdmitRequestHandler extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
-	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String rid=req.getParameter("id");
+		
+		
+		EditAdminRequestService auusv=new EditAdminRequestService();
+		if(auusv.paymentRequest(rid))
+			resp.sendRedirect("AdminRequestView.jsp");
+	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
+		String rid=request.getParameter("rid");
 		String material=request.getParameter("material");
 		String location=request.getParameter("location");
 		String rdate=request.getParameter("rdate");
@@ -45,6 +55,7 @@ public class EditAdmitRequestHandler extends HttpServlet {
 		
 
 		Request req=new Request();
+		req.setRid(rid);
 		req.setMaterial(material);
 		req.setLocation(location);
 		req.setRdate(rdate);

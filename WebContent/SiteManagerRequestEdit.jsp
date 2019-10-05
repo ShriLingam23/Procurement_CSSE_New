@@ -11,7 +11,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">  
-    <title>Admin Dashboard</title>
+    <title>Site Manager Dashboard</title>
     <meta name="description" content="">
     <meta name="author" content="templatemo">
     
@@ -57,7 +57,7 @@
         </div>
         <div class="templatemo-content-container">
           <div class="templatemo-content-widget white-bg">
-            <h2 class="margin-bottom-10 text-center">Order</h2>
+            <h2 class="margin-bottom-10 text-center">Edit Order Request</h2>
             <br><br>
             <%
 
@@ -67,6 +67,17 @@
 	 		       	String query  ="SELECT * FROM request WHERE rid='"+id+"'";
 
     				ResultSet  resultSet = myStm.executeQuery(query);
+    				
+    				//Connection conMat = DbConnection.getDBConnection(); 
+	 		        Statement myStmMat= con.createStatement();
+	 		       	String queryMat  ="SELECT * FROM material";
+	 		       	
+    				ResultSet  resultSetMat = myStmMat.executeQuery(queryMat);
+    			 	  
+    				Statement myStmSite= con.createStatement();
+	 		       	String querySite  ="SELECT * FROM site";
+	 		       	
+    				ResultSet  resultSetSite = myStmSite.executeQuery(querySite);
     
       			while(resultSet.next()){
     	  
@@ -76,11 +87,35 @@
               <div class="row form-group">
                 <div class="col-lg-6 col-md-6 form-group">                  
                     <label for="inputFirstName">Material</label>
+                    <select class="form-control" id="material" name="material">
+				      <%  while(resultSetMat.next()){ 
+				      		if(resultSetMat.getString("material").equals(resultSet.getString("material"))){
+				      %>
+				            <option selected="selected"><%=resultSetMat.getString("material") %></option>
+				        <% }
+				      		else{%>
+				      			<option><%=resultSetMat.getString("material") %></option>
+				      		<%}} %>
+				    </select>     
+                    <!-- 
                     <input type="text" class="form-control" id=material name="material"  value="<%=resultSet.getString("material") %>">                  
+                 -->
                 </div>
                 <div class="col-lg-6 col-md-6 form-group">                  
                     <label for="inputFirstName">Location</label>
+                    <select class="form-control" id="location" name="location">
+				      <%  while(resultSetSite.next()){ 
+				      		if(resultSetSite.getString("location").equals(resultSet.getString("location"))){
+				      %>
+				            <option selected="selected"><%=resultSetSite.getString("location") %></option>
+				        <% }
+				      		else{%>
+				      			<option><%=resultSetSite.getString("location") %></option>
+				      		<%}} %>
+				    </select>     
+                    <!--  
                     <input type="text" class="form-control" id=location name="location"  value="<%=resultSet.getString("location") %>">      
+                	-->
                 </div> 
               </div>
               <div class="row form-group">
@@ -90,6 +125,8 @@
                 </div>
                 <div class="col-lg-6 col-md-6 form-group">                  
                     <label for="inputConfirmNewPassword">Quantity</label>
+                    <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter the Quantity" value="<%=resultSet.getString("qty") %>">  
+                    <!--  
                     <select class="form-control" id="qty" name="qty">
 				      <option><%=resultSet.getString("qty") %></option>
 				      <option>100</option>
@@ -98,11 +135,14 @@
 				      <option>250</option>
 				      <option>300</option>
 				    </select>   
+				    -->
                 </div> 
               </div>
               
-              <div class="form-group text-center">
-                <button type="submit" class="templatemo-blue-button">Update</button>
+              <div class="form-group">
+                <button type="submit" class="templatemo-blue-button" style="margin-left: 250px;margin-right: 100px">Update</button>
+                <a href="EditSiteManagerRequestHandler?id=<%=resultSet.getString("rid")%>" 
+                	style="background-color: #C12809;border: none;color: white;border-radius: 2px;padding: 10px 30px;text-transform: uppercase;transition: all 0.3s ease;">Delete</a>
               </div>                           
             </form>
 <% 

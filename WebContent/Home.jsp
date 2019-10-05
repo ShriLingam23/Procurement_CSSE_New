@@ -1,5 +1,63 @@
+
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
+<%@ page import="java.util.*" %>
+<%@ page import="java.sql.*"%>
+<%@ page import="Connection.DbConnection"%>
+<%@ page import="com.google.gson.Gson"%>
+<%@ page import="com.google.gson.JsonObject"%>
+ 
+<%
+
+Gson gsonObj = new Gson();
+
+Map<Object,Object> map = null;
+List<Map<Object,Object>> list = new ArrayList<Map<Object,Object>>();
+
+Map<Object,Object> map1 = null;
+List<Map<Object,Object>> list1 = new ArrayList<Map<Object,Object>>();
+
+Map<Object,Object> mapG = null;
+List<Map<Object,Object>> listG = new ArrayList<Map<Object,Object>>();
+
+Map<Object,Object> mapN = null;
+List<Map<Object,Object>> listN = new ArrayList<Map<Object,Object>>();
+
+
+DbConnection db=new DbConnection();
+
+Connection connection = db.getDBConnection();
+
+Statement myStm=connection.createStatement();
+String query = "select location,SUM(rqty*uprice) AS 'tamount' from request WHERE status!='Process' GROUP BY location";
+ResultSet resultSet = myStm.executeQuery(query);
+while(resultSet.next()){
+	map = new HashMap<Object,Object>(); map.put("label", resultSet.getString("location")); map.put("y", Float.parseFloat(resultSet.getString("tamount"))); list.add(map);
+}
+
+Statement myStm1=connection.createStatement();
+String query1 = "select material,SUM(rqty) AS 'tqty' from request GROUP BY material";
+ResultSet resultSet1 = myStm1.executeQuery(query1);
+while(resultSet1.next()){
+	map1 = new HashMap<Object,Object>(); map1.put("label", resultSet1.getString("material")); map1.put("y", Integer.parseInt(resultSet1.getString("tqty"))); map1.put("exploded", true); list1.add(map1);
+}
+
+Statement myStmGM=connection.createStatement();
+String queryGM = "select * from request WHERE status='Delivered'";
+ResultSet resultSetGM = myStmGM.executeQuery(queryGM);
+while(resultSetGM.next()){
+	mapG = new HashMap<Object,Object>(); mapG.put("label", resultSetGM.getString("rid")); mapG.put("y", Integer.parseInt(resultSetGM.getString("qty"))); listG.add(mapG);
+	mapN = new HashMap<Object,Object>(); mapN.put("label", resultSetGM.getString("rid")); mapN.put("y", Integer.parseInt(resultSetGM.getString("rqty"))); listN.add(mapN);
+}
+
+ 
+String dataPoints = gsonObj.toJson(list);
+String dataPoints1 = gsonObj.toJson(list1);
+String dataPointsG = gsonObj.toJson(listG);
+String dataPointsN = gsonObj.toJson(listN);
+%>
+    
+    
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -14,6 +72,110 @@
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/templatemo-style.css" rel="stylesheet">
+    
+    <script type="text/javascript">
+window.onload = function() { 
+ 
+var chart = new CanvasJS.Chart("chartContainer", {
+	title: {
+		text: "Material Order Analyzes for the Construction sites"
+	},
+	axisX: {
+		title: "Procurement Material "
+	},
+	axisY: {
+		title: "Number of Procurement Material Ordered"
+	},
+	data: [{
+		type: "column",
+		yValueFormatString: "Rs#,##0.0# ",
+		dataPoints: <%out.print(dataPoints);%>
+	}]
+});
+chart.render();
+
+//Pie Chart
+var chart1 = new CanvasJS.Chart("chartContainer1", {
+	theme: "light2",
+	animationEnabled: true,
+	exportFileName: "New Year Resolutions",
+	exportEnabled: true,
+	title:{
+		text: "Top Categories of New Year's Resolution"
+	},
+	data: [{
+		type: "pie",
+		showInLegend: true,
+		legendText: "{label}",
+		toolTipContent: "{label}: <strong>{y}%</strong>",
+		indexLabel: "{label} {y}%",
+		dataPoints : <%out.print(dataPoints1);%>
+	}]
+});
+ 
+chart1.render();
+
+//Comparison
+var chartGN = new CanvasJS.Chart("chartContainerGN", {
+	animationEnabled: true,
+	title: {
+		text: "Ordered Quantity Vs Received Quantity of Material"
+	},
+	axisX: {
+		title: "Order ID",
+		reversed: true
+	},
+	axisY: {
+		title: "Ordered Quantity",
+		titleFontColor: "#4F81BC",
+		lineColor: "#4F81BC",
+		labelFontColor: "#4F81BC",
+		tickColor: "#4F81BC"
+	},
+	axisY2: {
+		title: "Received Quantity",
+		titleFontColor: "#C0504E",
+		lineColor: "#C0504E",
+		labelFontColor: "#C0504E",
+		tickColor: "#C0504E"
+	},
+	toolTip: {
+		shared: true
+	},
+	legend: {
+		cursor: "pointer",
+		itemclick: toggleDataSeries
+	},
+	data: [{
+		type: "bar",
+		name: "Ordered Quantity",
+		axisYType: "primary",
+		showInLegend: true,
+		yValueFormatString: "#,### Items",
+		dataPoints: <%out.print(dataPointsG);%>
+	},
+	{
+		type: "bar",
+		name: "Received Quantity",
+		axisYType: "secondary",
+		showInLegend: true,
+		yValueFormatString: "#,### Items",
+		dataPoints: <%out.print(dataPointsN);%>
+	}]
+});
+chartGN.render();
+ 
+function toggleDataSeries(e) {
+	if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+		e.dataSeries.visible = true;
+	} else {
+		e.dataSeries.visible = true;
+	}
+	e.chartGN.render();
+}
+ 
+}
+</script>
     
   </head>
   <body>  
@@ -65,109 +227,19 @@
               <p>Works on all major browsers. IE 10+. Visual Admin is <a href="http://www.templatemo.com/tag/admin" target="_parent">free responsive admin template</a> for everyone. Feel free to use this template for your backend user interfaces. Please tell your friends about <a href="http://www.templatemo.com" target="_parent">templatemo.com</a> website. You may <a href="http://www.templatemo.com/contact" target="_parent">contact us</a> if you have anything to say.</p>
               <p>Nunc placerat purus eu tincidunt consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus dapibus nulla quis risus auctor, non placerat augue consectetur. Fusce mi lacus, semper sit amet mattis eu.</p>              
             </div>
-            <div class="templatemo-content-widget white-bg col-1 text-center">
+            <div class="templatemo-content-widget white-bg col-2">
               <i class="fa fa-times"></i>
-              <h2 class="text-uppercase">Maris</h2>
-              <h3 class="text-uppercase margin-bottom-10">Design Project</h3>
-              <img src="images/bicycle.jpg" alt="Bicycle" class="img-circle img-thumbnail">
-            </div>
-            <div class="templatemo-content-widget white-bg col-1">
-              <i class="fa fa-times"></i>
-              <h2 class="text-uppercase">Dictum</h2>
-              <h3 class="text-uppercase">Sedvel Erat Non</h3><hr>
-              <div class="progress">
-                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
-              </div>
-              <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 50%;"></div>
-              </div>
-              <div class="progress">
-                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
-              </div>                          
+              <div class="square"></div>
+              <h2 class="templatemo-inline-block">Visual Admin Template</h2><hr>
+              <p>Works on all major browsers. IE 10+. Visual Admin is <a href="http://www.templatemo.com/tag/admin" target="_parent">free responsive admin template</a> for everyone. Feel free to use this template for your backend user interfaces. Please tell your friends about <a href="http://www.templatemo.com" target="_parent">templatemo.com</a> website. You may <a href="http://www.templatemo.com/contact" target="_parent">contact us</a> if you have anything to say.</p>
+              <p>Nunc placerat purus eu tincidunt consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus dapibus nulla quis risus auctor, non placerat augue consectetur. Fusce mi lacus, semper sit amet mattis eu.</p>              
             </div>
           </div>
-          <div class="templatemo-flex-row flex-content-row">
-            <div class="col-1">              
-              <div class="templatemo-content-widget orange-bg">
-                <i class="fa fa-times"></i>                
-                <div class="media">
-                  <div class="media-left">
-                    <a href="#">
-                      <img class="media-object img-circle" src="images/sunset.jpg" alt="Sunset">
-                    </a>
-                  </div>
-                  <div class="media-body">
-                    <h2 class="media-heading text-uppercase">Consectur Fusce Enim</h2>
-                    <p>Phasellus dapibus nulla quis risus auctor, non placerat augue consectetur.</p>  
-                  </div>        
-                </div>                
-              </div>            
-              <div class="templatemo-content-widget white-bg">
-                <i class="fa fa-times"></i>
-                <div class="media">
-                  <div class="media-left">
-                    <a href="#">
-                      <img class="media-object img-circle" src="images/sunset.jpg" alt="Sunset">
-                    </a>
-                  </div>
-                  <div class="media-body">
-                    <h2 class="media-heading text-uppercase">Consectur Fusce Enim</h2>
-                    <p>Phasellus dapibus nulla quis risus auctor, non placerat augue consectetur.</p>  
-                  </div>
-                </div>                
-              </div>            
-            </div>
-            <div class="col-1">
-              <div class="panel panel-default templatemo-content-widget white-bg no-padding templatemo-overflow-hidden">
-                <i class="fa fa-times"></i>
-                <div class="panel-heading templatemo-position-relative"><h2 class="text-uppercase">User Table</h2></div>
-                <div class="table-responsive">
-                  <table class="table table-striped table-bordered">
-                    <thead>
-                      <tr>
-                        <td>No.</td>
-                        <td>First Name</td>
-                        <td>Last Name</td>
-                        <td>Username</td>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>1.</td>
-                        <td>John</td>
-                        <td>Smith</td>
-                        <td>@jS</td>
-                      </tr>
-                      <tr>
-                        <td>2.</td>
-                        <td>Bill</td>
-                        <td>Jones</td>
-                        <td>@bJ</td>
-                      </tr>
-                      <tr>
-                        <td>3.</td>
-                        <td>Mary</td>
-                        <td>James</td>
-                        <td>@mJ</td>
-                      </tr>
-                      <tr>
-                        <td>4.</td>
-                        <td>Steve</td>
-                        <td>Bride</td>
-                        <td>@sB</td>
-                      </tr>
-                      <tr>
-                        <td>5.</td>
-                        <td>Paul</td>
-                        <td>Richard</td>
-                        <td>@pR</td>
-                      </tr>                    
-                    </tbody>
-                  </table>    
-                </div>                          
-              </div>
-            </div>           
-          </div> <!-- Second row ends -->
+          
+          <!-- Data Visualization -->
+          <div id="chartContainer" style="height: 370px; width: 100%;"><span class="badge">new</span></div>
+          
+		
           <div class="templatemo-flex-row flex-content-row templatemo-overflow-hidden"> <!-- overflow hidden for iPad mini landscape view-->
             <div class="col-1 templatemo-overflow-hidden">
               <div class="templatemo-content-widget white-bg templatemo-overflow-hidden">
@@ -175,11 +247,11 @@
                 <div class="templatemo-flex-row flex-content-row">
                   <div class="col-1 col-lg-6 col-md-12">
                     <h2 class="text-center">Modular<span class="badge">new</span></h2>
-                    <div id="pie_chart_div" class="templatemo-chart"></div> <!-- Pie chart div -->
+                    <div id="chartContainerGN" style="height: 370px; width: 100%;"></div>
                   </div>
                   <div class="col-1 col-lg-6 col-md-12">
-                    <h2 class="text-center">Interactive<span class="badge">new</span></h2>
-                    <div id="bar_chart_div" class="templatemo-chart"></div> <!-- Bar chart div -->
+                  	<h2 class="text-center">Modular<span class="badge">new</span></h2>
+                    <div id="chartContainer1" style="height: 370px; width: 100%;"></div>
                   </div>  
                 </div>                
               </div>
@@ -189,6 +261,7 @@
       </div>
     </div>
     
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <!-- JS -->
     <script src="js/jquery-1.11.2.min.js"></script>      <!-- jQuery -->
     <script src="js/jquery-migrate-1.2.1.min.js"></script> <!--  jQuery Migrate Plugin -->

@@ -13,7 +13,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Dashboard</title>
+<title>Site Manager Dashboard</title>
 <meta name="description" content="">
 <meta name="author" content="templatemo">
 
@@ -24,15 +24,6 @@
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <link href="css/templatemo-style.css" rel="stylesheet">
 
-<script type="text/javascript">
-
-   function changeFunc() {
-    var selectBox = document.getElementById("supplier");
-    var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-    alert(selectedValue);
-   }
-
-  </script>
 
 </head>
 <body>
@@ -102,7 +93,7 @@
 
 							while (resultSet.next()) {
 					%>
-					<form action="EditAdmitRequestHandler"
+					<form action="DeliveryNoteHandler"
 						class="templatemo-login-form" method="POST">
 						<div class="row form-group">
 							<div class="col-lg-6 col-md-6 form-group">
@@ -143,114 +134,37 @@
 									value="<%=resultSet.getString("status")%>" readonly="readonly">
 							</div>
 						</div>
-						<%
-						ResultSet  resultSetMS =null;
-						%>
-
-						<h3>Select Supplier</h3>
-						<div class="row form-group">
-							<div class="templatemo-content-container">
-								<div class="templatemo-content-widget no-padding">
-									<div class="panel panel-default table-responsive">
-
-										<table
-											class="table table-striped table-bordered templatemo-user-table">
-											<thead>
-												<tr>
-													<td><a href="" class="white-text templatemo-sort-by">Material
-															<span class="caret"></span>
-													</a></td>
-													<td><a href="" class="white-text templatemo-sort-by">Supplier<span
-															class="caret"></span></a></td>
-													<td><a href="" class="white-text templatemo-sort-by">Unit
-															Price<span class="caret"></span>
-													</a></td>
-													<td><a href="" class="white-text templatemo-sort-by">Contact
-															Number<span class="caret"></span>
-													</a></td>
-													<td><a href="" class="white-text templatemo-sort-by">Email<span
-															class="caret"></span></a></td>
-												</tr>
-											</thead>
-											<tbody>
-												<% try {
-													Connection conNew = DbConnection.getDBConnection(); 
-									 		        Statement myStmMS= conNew.createStatement();
-									 		       	String queryMS  ="SELECT * FROM supplier_material WHERE material='"+resultSet.getString("material")+"'";
-
-								    				resultSetMS = myStmMS.executeQuery(queryMS);
-                while(resultSetMS.next()){
-%>
-												<tr>
-
-													<td><%=resultSetMS.getString("material") %></td>
-													<td><%=resultSetMS.getString("supplier") %></td>
-													<td><%=resultSetMS.getString("price") %></td>
-
-													<%
-													Statement myStmSupp= conNew.createStatement();
-									 		       	String querySupp  ="SELECT * FROM supplier WHERE supplier='"+resultSetMS.getString("supplier")+"'";
-
-								    				ResultSet  resultSetSupp = myStmSupp.executeQuery(querySupp);
-                while(resultSetSupp.next()){ %>
-
-													<td><%=resultSetSupp.getString("email") %></td>
-													<td><%=resultSetSupp.getString("mobile") %></td>
-													<%
-											}
-                
-                }
-
-                //conNew.close();
-
-						}
-
-						catch (Exception e) {
-							e.printStackTrace();
-						}%>
-												
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
-						</div>
-						<%
-							if(resultSetMS.first()){					
-						%>
+						
 
 						<div class="row form-group">
 						<div class="col-lg-6 col-md-6 form-group">
-								<label for="inputNewPassword">Order Date</label> <input
+								<label for="inputNewPassword">Order Date</label> 
+								<input
 									type="text" class="form-control" id="odate" name="odate"
-									value="<%=(new java.util.Date()).toLocaleString()%>">
+									value="<%=resultSet.getString("odate")%>">
 							</div>
 							<div class="col-lg-6 col-md-6 form-group">
 								<label for="inputEmail">Supplier</label> 
-								<select
-									class="form-control" id="supplier" name="supplier" onchange="changeFunc();">
-									<%
-									Connection conSp = DbConnection.getDBConnection();
-									Statement myStmSp= conSp.createStatement();
-					 		       	String querySp  ="SELECT * FROM supplier_material";
-
-				    				ResultSet  resultSetSp = myStmSp.executeQuery(querySp);
-while(resultSetSp.next()){
-									%>
-									<option><%=resultSetSp.getString("supplier")%></option>
-									<%
-										}
-									%>
-								</select>
+								<input
+									type="text" class="form-control" id="supplier" name="supplier"
+									value="<%=resultSet.getString("supplier")%>">
 							</div>
 							
 
 						</div>
+						
+						<div class="row form-group">
+							<div class="col-lg-12 col-md-12 form-group">
+								<label for="inputNewPassword">Received Quantity</label> 
+								<input
+									type="number" class="form-control" id="rqty" name="rqty">
+							</div>
+
+						</div>
 
 						<div class="form-group text-center">
-							<button type="submit" class="templatemo-blue-button">Place Order</button>
+							<button type="submit" class="templatemo-blue-button">Accept Delivery</button>
 						</div>
-						<%} %>
 					</form>
 					<%
 							}

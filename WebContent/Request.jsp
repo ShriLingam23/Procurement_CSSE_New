@@ -88,8 +88,6 @@
 				        <% } %>
 				    </select>                    
                 </div>
-                
-                    
                 <div class="col-lg-6 col-md-6 form-group">                  
                     <label for="inputFirstName">Location</label>
                     <select class="form-control" id="location" name="location">
@@ -106,20 +104,14 @@
                 </div> 
                 <div class="col-lg-6 col-md-6 form-group">                  
                     <label for="inputConfirmNewPassword">Quantity</label>
-                    <select class="form-control" id="qty" name="qty">
-				      <option>500</option>
-				      <option>1000</option>
-				      <option>1500</option>
-				      <option>2000</option>
-				      <option>2500</option>
-				    </select>  
+                    <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter the Quantity" >  
+                    
                 </div> 
               </div>
-              
-             
               <div class="form-group text-center">
-                <button type="submit" class="templatemo-blue-button">Add</button>
-              </div>                           
+                <button type="submit" class="templatemo-blue-button">Request</button>
+              </div>  
+                                    
             </form>
      <% 
 				
